@@ -1,0 +1,23 @@
+{
+  "name": "@botsocket/discord-sdk",
+  "version": "0.0.1",
+  "description": "Discord SDK for BotSocket",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/botsocket/discord-sdk.git"
+  },
+  "author": "BotSocket",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/botsocket/discord-sdk/issues"
+  },
+  "homepage": "https://github.com/botsocket/discord-sdk#readme",
+  "dependencies": {
+    "@botsocket/jade": "^1.0.1",
+    "@botsocket/ruby": "^1.0.2"
+  }
+}
