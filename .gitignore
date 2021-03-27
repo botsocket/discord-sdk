@@ -1,2 +1,13 @@
+.vs
+.vscode
+
+.next
+
 node_modules
+coverage
+dist
+
 package-lock.json
+.eslintcache
+.DS_STORE
+.env
