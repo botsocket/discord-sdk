@@ -42,6 +42,10 @@ module.exports = class Client {
                 name: 'message',
                 handler: (_client, message) => {
 
+                    if (message.channel.type === 'dm' || message.author.bot || !message.guild?.available || message.webhookID) {
+                        return;
+                    }
+
                     const matches = this._core.registry.match(message.content);
                     if (!matches) {
                         return;

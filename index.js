@@ -1,3 +1,5 @@
+'use strict';
+
 module.exports = {
-  Client: require("./Client.js"),
+    Client: require('./Client.js'),
 };
