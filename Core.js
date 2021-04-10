@@ -5,12 +5,12 @@ const Ruby = require('@botsocket/ruby');
 const { inspect } = require('util');
 
 module.exports = class Core {
-    constructor(payload) {
+    constructor(options) {
 
-        this._payload = payload;
-        this.client = new Discord.Client(payload.client);
-        this.registry = Ruby.registry(payload.registry);
-        this.client.token = payload.token;
+        this._options = options;
+        this.client = new Discord.Client(options.client);
+        this.registry = Ruby.registry(options.registry);
+        this.client.token = options.token;
 
         this.plugins = {};
 

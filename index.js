@@ -1,5 +1,8 @@
 'use strict';
 
+const Client = require('./Client.js');
+
 module.exports = {
-    Client: require('./Client.js'),
+    Client,
+    client: (options) => new Client(undefined, undefined, options),
 };

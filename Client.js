@@ -3,9 +3,9 @@
 const Core = require('./Core');
 
 module.exports = class Client {
-    constructor(parent, name = 'default', payload) {
+    constructor(parent, name = 'default', options) {
 
-        this._core = parent ? parent._core : new Core(payload);
+        this._core = parent ? parent._core : new Core(options);
         this.plugins = this._core.plugins;
 
         this._realm = {
@@ -40,7 +40,7 @@ module.exports = class Client {
 
             this.event({
                 name: 'message',
-                handler: (_client, message) => {
+                handler: async (_client, message) => {
 
                     if (message.channel.type === 'dm' || message.author.bot || !message.guild?.available || message.webhookID) {
                         return;
@@ -84,7 +84,16 @@ module.exports = class Client {
                             }
                         }
 
-                        handler(message, match);
+                        try {
+                            await handler(message, match);
+                        }
+                        catch (e) {
+                            if (!e) {
+                                return;
+                            }
+
+                            message.channel.send(`\`\`\`${e}\`\`\``);
+                        }
                     }
                 },
             });
