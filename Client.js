@@ -88,11 +88,8 @@ module.exports = class Client {
                             await handler(message, match);
                         }
                         catch (e) {
-                            if (!e) {
-                                return;
-                            }
-
-                            message.channel.send(`\`\`\`${e}\`\`\``);
+                            message.channel.send('Command failed to execute!');
+                            this.logger.error(e);
                         }
                     }
                 },
