@@ -27,7 +27,7 @@ module.exports = class Client {
             return this;
         }
 
-        return new Promise((resolve, reject) => {
+        return new Promise((resolve) => {
 
             this.event({
                 name: 'ready',
@@ -107,11 +107,6 @@ module.exports = class Client {
                     );
                 },
             });
-
-            setTimeout(() => {
-
-                reject(new Error('Timeout'));
-            }, 10000);
 
             this._core.client.login(token);
         });
