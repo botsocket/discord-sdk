@@ -226,14 +226,6 @@ internals.Client = class {
 
                 return message.channel.send(result);
             }
-
-            if (result === undefined ||
-                result === null) {
-
-                return;
-            }
-
-            throw new Error('Command handler must return a promise, a string, a number, undefined or null');
         }
         catch (error) {
             message.channel.send('Command failed to execute!');
