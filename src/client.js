@@ -34,24 +34,9 @@ internals.Client = class {
             bind: null,
         };
 
-        this._setup();
-    }
-
-    _setup() {
-
-        this.djsClient.on('message', (message) => {
+        core.client.on('message', (message) => {
 
             this._dispatch(message);
-        });
-
-        this.djsClient.on('log', (log) => {
-
-            console.log(`[${log.type}] ${log.message}`);
-        });
-
-        this.djsClient.on('ready', () => {
-
-            this.logger.info('Ready!');
         });
     }
 

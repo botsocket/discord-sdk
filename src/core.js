@@ -56,5 +56,20 @@ module.exports = class {
                 });
             },
         };
+
+        this._setup();
+    }
+
+    _setup() {
+
+        this.client.on('log', (log) => {
+
+            console.log(`[${log.type}] ${log.message}`);
+        });
+
+        this.client.on('ready', () => {
+
+            this.logger.info('Ready!');
+        });
     }
 };
