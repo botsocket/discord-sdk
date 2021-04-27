@@ -1,17 +1,16 @@
 'use strict';
 
+const Util = require('util');
+
 const Discord = require('discord.js');
 const Ruby = require('@botsocket/ruby');
-const { inspect } = require('util');
 
-module.exports = class Core {
+module.exports = class {
+
     constructor(options) {
 
-        this._options = options;
-        this.client = new Discord.Client(options.client);
+        this.client = new Discord.Client(options.djs);
         this.registry = Ruby.registry(options.registry);
-        this.client.token = options.token;
-
         this.plugins = {};
 
         this.logger = {
@@ -21,7 +20,7 @@ module.exports = class Core {
                     return data;
                 }
 
-                return inspect(data);
+                return Util.inspect(data);
             },
             join: (data) => {
 
