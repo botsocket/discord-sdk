@@ -29,10 +29,10 @@ internals.command = Jade.obj({
         args: Jade.obj(),
         flags: Jade.obj(),
         options: Jade.obj(),                // Validated in Jade
-        failAction: Jade.alt('error', 'ignore', Jade.func()).default('error'),
+        failAction: Jade.alt('error', 'ignore', Jade.fn()).default('error'),
     },
 
-    handler: Jade.func().required(),
+    handler: Jade.fn().required(),
     data: Jade.forbidden(),                 // Data should not be present as an interface
 })
     .unknown();                             // The rest are validated in Ruby
@@ -41,7 +41,7 @@ internals.event = Jade.obj({
 
     name: Jade.str().required(),
     once: Jade.bool(),
-    handler: Jade.func().required(),
+    handler: Jade.fn().required(),
 });
 
 internals.rawPlugin = Jade.obj({
@@ -58,7 +58,7 @@ internals.rawPlugin = Jade.obj({
     })
         .unknown(),
 
-    register: Jade.func().required(),
+    register: Jade.fn().required(),
 });
 
 internals.plugin = Jade.alt(internals.rawPlugin, {

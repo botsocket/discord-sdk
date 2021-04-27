@@ -54,22 +54,22 @@ internals.Client = class {
 
         djsClient.login(token);
 
+        djsClient.on('message', (message) => {
+
+            this._dispatch(message);
+        });
+
+        djsClient.on('log', (log) => {
+
+            console.log(`[${log.type}] ${log.message}`);
+        });
+
         return new Promise((resolve) => {
 
             djsClient.on('ready', () => {
 
                 this.logger.info('Ready!');
                 resolve();
-            });
-
-            djsClient.on('message', (message) => {
-
-                this._dispatch(message);
-            });
-
-            djsClient.on('log', (log) => {
-
-                console.log(`[${log.type}] ${log.message}`);
             });
         });
     }
@@ -88,8 +88,8 @@ internals.Client = class {
                     definition.validate.flags = Jade.compile(definition.validate.flags);
                 }
 
-                if (definition.failAction === 'error') {
-                    definition.failAction = (message, errors) => {
+                if (definition.validate.failAction === 'error') {
+                    definition.validate.failAction = (message, errors) => {
 
                         message.channel.send(errors[0].message);
                     };
@@ -99,12 +99,13 @@ internals.Client = class {
             definition.data = {
                 validate: definition.validate,
                 handler: definition.handler,
+                client: this,
             };
 
             delete definition.handler;
             delete definition.validate;
 
-            this._core.register.add(definition);
+            this._core.registry.add(definition);
         }
 
         return this;
@@ -173,7 +174,7 @@ internals.Client = class {
 
         if (message.channel.type === 'dm' ||
             message.author.bot ||
-            (message.guild && message.guild.available) ||
+            (message.guild && !message.guild.available) ||
             message.webhookID) {
 
             return;
@@ -185,7 +186,7 @@ internals.Client = class {
         }
 
         for (const match of matches) {
-            const { validate, handler } = match.definition;
+            const { validate, handler } = match.definition.data;
 
             if (validate) {
                 this._validate(message, 'args', validate, match);
@@ -209,9 +210,9 @@ internals.Client = class {
 
                 throw new Error('Command handler must return a promise, a string, a number, undefined or null');
             }
-            catch (e) {
+            catch (error) {
                 message.channel.send('Command failed to execute!');
-                this.logger.error(e);
+                this.logger.error(error);
             }
         }
     }
