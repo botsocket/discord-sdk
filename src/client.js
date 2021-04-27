@@ -24,6 +24,7 @@ internals.Client = class {
         this.registry = core.registry;
         this.logger = core.logger;
         this.djsClient = core.client;
+        this.state = core.state;
 
         this.realm = {
             name,

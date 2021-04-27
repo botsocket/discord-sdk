@@ -12,6 +12,7 @@ module.exports = class {
         this.client = new Discord.Client(options.djs);
         this.registry = Ruby.registry(options.registry);
         this.plugins = {};
+        this.state = {};                                        // Safe namespace for application-specific state
 
         this.logger = {
             inspect: (data) => {
