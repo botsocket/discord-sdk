@@ -4,10 +4,9 @@ const Jade = require('@botsocket/jade');
 
 const Core = require('./core');
 const Settings = require('./settings');
+const Utils = require('./utils');
 
-const internals = {
-    sdkData: Symbol('sdkData'),
-};
+const internals = {};
 
 exports.create = function (options = {}) {
 
@@ -33,11 +32,6 @@ internals.Client = class {
             parent: parent ? parent.realm : null,
             bind: null,
         };
-
-        core.client.on('message', (message) => {
-
-            this._dispatch(message);
-        });
     }
 
     clone(name) {
@@ -86,7 +80,7 @@ internals.Client = class {
 
             definition.data = {
                 ...definition.data,
-                [internals.sdkData]: {
+                [Utils.symbols.sdkData]: {
                     validate: definition.validate,
                     handler: definition.handler,
                     client: this,
@@ -157,92 +151,5 @@ internals.Client = class {
 
         exposures[property] = value;
         return this;
-    }
-
-    _dispatch(message) {
-
-        if (message.channel.type === 'dm' ||
-            message.author.bot ||
-            (message.guild && !message.guild.available) ||
-            message.webhookID) {
-
-            return;
-        }
-
-        const matches = this.registry.match(message.content);
-        if (!matches) {
-            return;
-        }
-
-        for (const match of matches) {
-            const { validate, handler } = match.definition.data[internals.sdkData];
-
-            if (validate) {
-                try {
-                    this._validate('args', validate, match);
-                    this._validate('flags', validate, match);
-                }
-                catch (error) {
-                    if (error instanceof internals.ValidationError) {
-                        if (validate.failAction !== 'ignore') {
-                            this._execute(validate.failAction, message, error.errors, error.source);
-                        }
-                    }
-                    else {
-                        message.channel.send('Command failed to execute!');
-                        this.logger.error(error);
-                    }
-
-                    return;
-                }
-            }
-
-            this._execute(handler, message, match);
-        }
-    }
-
-    async _execute(handler, message, ...args) {
-
-        try {
-            const result = await handler.call(this.realm.bind, message, ...args);
-
-            if (typeof result === 'string' ||
-                typeof result === 'number') {
-
-                return message.channel.send(result);
-            }
-        }
-        catch (error) {
-            message.channel.send('Command failed to execute!');
-            this.logger.error(error);
-        }
-    }
-
-    _validate(source, settings, match) {
-
-        const schema = settings[source];
-
-        if (!schema) {
-            return;
-        }
-
-        const result = schema.validate(match[source], settings.options);
-        if (!result.errors) {
-            match[source] = result.value;
-            return;
-        }
-
-        throw new internals.ValidationError(result.errors, source);
-    }
-};
-
-internals.ValidationError = class extends Error {
-
-    constructor(errors, source) {
-
-        super();
-
-        this.source = source;
-        this.errors = errors;
     }
 };
