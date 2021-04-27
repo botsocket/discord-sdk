@@ -192,7 +192,21 @@ internals.Client = class {
             }
 
             try {
-                await handler(message, match);
+                const result = await handler(message, match);
+
+                if (typeof result === 'string' ||
+                    typeof result === 'number') {
+
+                    return message.channel.send(result);
+                }
+
+                if (result === undefined ||
+                    result === null) {
+
+                    return;
+                }
+
+                throw new Error('Command handler must return a promise, a string, a number, undefined or null');
             }
             catch (e) {
                 message.channel.send('Command failed to execute!');
