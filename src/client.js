@@ -142,9 +142,7 @@ internals.Client = class {
     async register(...plugins) {
 
         for (let plugin of plugins) {
-
             plugin = Settings.apply('plugin', plugin);
-
             try {
                 if (typeof plugin.register === 'function') {
                     const client = this.clone(plugin.name);
@@ -158,7 +156,7 @@ internals.Client = class {
                 }
             }
             catch (e) {
-                this.logger.error(`Error while loading plugin ${plugin.name}`);
+                this.logger.error(`Error while loading plugin ${(plugin.plugin || plugin).name}`);
                 this.logger.error(e);
             }
         }
