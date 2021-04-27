@@ -63,7 +63,7 @@ internals.Client = class {
 
             djsClient.on('message', (message) => {
 
-                this._core.dispatch(message);
+                this._dispatch(message);
             });
 
             djsClient.on('log', (log) => {
