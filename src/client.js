@@ -5,9 +5,11 @@ const Jade = require('@botsocket/jade');
 const Core = require('./core');
 const Settings = require('./settings');
 
-const internals = {};
+const internals = {
+    sdkData: Symbol('sdkData'),
+};
 
-exports.create = function (options) {
+exports.create = function (options = {}) {
 
     const settings = Settings.apply('client', options);
     const core = new Core(settings);
@@ -97,9 +99,12 @@ internals.Client = class {
             }
 
             definition.data = {
-                validate: definition.validate,
-                handler: definition.handler,
-                client: this,
+                ...definition.data,
+                [internals.sdkData]: {
+                    validate: definition.validate,
+                    handler: definition.handler,
+                    client: this,
+                },
             };
 
             delete definition.handler;
@@ -170,7 +175,7 @@ internals.Client = class {
         return this;
     }
 
-    async _dispatch(message) {
+    _dispatch(message) {
 
         if (message.channel.type === 'dm' ||
             message.author.bot ||
@@ -186,62 +191,82 @@ internals.Client = class {
         }
 
         for (const match of matches) {
-            const { validate, handler } = match.definition.data;
+            const { validate, handler } = match.definition.data[internals.sdkData];
 
             if (validate) {
-                this._validate(message, 'args', validate, match);
-                this._validate(message, 'flags', validate, match);
-            }
-
-            try {
-                const result = await handler(message, match);
-
-                if (typeof result === 'string' ||
-                    typeof result === 'number') {
-
-                    return message.channel.send(result);
+                try {
+                    this._validate('args', validate, match);
+                    this._validate('flags', validate, match);
                 }
-
-                if (result === undefined ||
-                    result === null) {
+                catch (error) {
+                    if (error instanceof internals.ValidationError) {
+                        if (validate.failAction !== 'ignore') {
+                            this._execute(validate.failAction, message, error.errors, error.source);
+                        }
+                    }
+                    else {
+                        message.channel.send('Command failed to execute!');
+                        this.logger.error(error);
+                    }
 
                     return;
                 }
+            }
 
-                throw new Error('Command handler must return a promise, a string, a number, undefined or null');
-            }
-            catch (error) {
-                message.channel.send('Command failed to execute!');
-                this.logger.error(error);
-            }
+            this._execute(handler, message, match);
         }
     }
 
-    async _validate(message, type, settings, match) {
+    async _execute(handler, message, ...args) {
 
-        const schema = settings[type];
+        try {
+            const result = await handler.call(this.realm.bind, message, ...args);
+
+            if (typeof result === 'string' ||
+                typeof result === 'number') {
+
+                return message.channel.send(result);
+            }
+
+            if (result === undefined ||
+                result === null) {
+
+                return;
+            }
+
+            throw new Error('Command handler must return a promise, a string, a number, undefined or null');
+        }
+        catch (error) {
+            message.channel.send('Command failed to execute!');
+            this.logger.error(error);
+        }
+    }
+
+    _validate(source, settings, match) {
+
+        const schema = settings[source];
 
         if (!schema) {
             return;
         }
 
-        const result = schema.validate(match[type], settings.options);
-        if (result.errors) {
-            if (settings.failAction === 'ignore') {
-                return;
-            }
-
-            try {
-                await settings.failAction.call(this.realm.bind, message, result.errors, type);
-            }
-            catch (error) {
-                message.channel.send('Command failed to execute!');
-                this.logger.error(error);
-            }
-
+        const result = schema.validate(match[source], settings.options);
+        if (!result.errors) {
+            match[source] = result.value;
             return;
         }
 
-        match[type] = result.value;
+        throw new internals.ValidationError(result.errors, source);
+    }
+};
+
+internals.ValidationError = class extends Error {
+
+    constructor(errors, source) {
+
+        super();
+
+        this.source = source;
+        this.errors = errors;
     }
 };

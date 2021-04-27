@@ -33,7 +33,6 @@ internals.command = Jade.obj({
     },
 
     handler: Jade.fn().required(),
-    data: Jade.forbidden(),                 // Data should not be present as an interface
 })
     .unknown();                             // The rest are validated in Ruby
 
