@@ -33,6 +33,26 @@ internals.Client = class {
             parent: parent ? parent.realm : null,
             bind: null,
         };
+
+        this._setup();
+    }
+
+    _setup() {
+
+        this.djsClient.on('message', (message) => {
+
+            this._dispatch(message);
+        });
+
+        this.djsClient.on('log', (log) => {
+
+            console.log(`[${log.type}] ${log.message}`);
+        });
+
+        this.djsClient.on('ready', () => {
+
+            this.logger.info('Ready!');
+        });
     }
 
     clone(name) {
@@ -54,26 +74,7 @@ internals.Client = class {
             return;
         }
 
-        djsClient.login(token);
-
-        djsClient.on('message', (message) => {
-
-            this._dispatch(message);
-        });
-
-        djsClient.on('log', (log) => {
-
-            console.log(`[${log.type}] ${log.message}`);
-        });
-
-        return new Promise((resolve) => {
-
-            djsClient.on('ready', () => {
-
-                this.logger.info('Ready!');
-                resolve();
-            });
-        });
+        return djsClient.login(token);
     }
 
     command(...definitions) {
