@@ -71,7 +71,7 @@ internals.Client = class {
                 }
 
                 if (definition.validate.failAction === 'error') {
-                    definition.validate.failAction = (message, errors) => {
+                    definition.validate.failAction = ({ message, errors }) => {
 
                         message.channel.send(errors[0].message);
                     };
@@ -106,7 +106,7 @@ internals.Client = class {
             this.djsClient[method](event.name, async (...args) => {
 
                 try {
-                    await event.handler.call(this.realm.bind, ...args);
+                    await event.handler.call(this.realm.bind, { client: this, args });
                 }
                 catch (error) {
                     this.logger.error(`Failed to execute event ${event.name}`);
@@ -122,20 +122,14 @@ internals.Client = class {
 
         for (let plugin of plugins) {
             plugin = Settings.apply('plugin', plugin);
+            const { name, register } = plugin.plugin ?? plugin;
             try {
-                if (typeof plugin.register === 'function') {
-                    const client = this.clone(plugin.name);
-                    await plugin.register(client);
-                    this.logger.info(`Plugin ${plugin.name} loaded`);
-                }
-                else if (plugin.plugin) {
-                    const client = this.clone(plugin.plugin.name);
-                    await plugin.plugin.register(client, plugin.options);
-                    this.logger.info(`Plugin ${plugin.plugin.name} loaded`);
-                }
+                const client = this.clone(name);
+                await register(client, plugin.options);
+                this.logger.info(`Plugin ${name} loaded`);
             }
             catch (e) {
-                this.logger.error(`Error while loading plugin ${(plugin.plugin || plugin).name}`);
+                this.logger.error(`Error while loading plugin ${name}`);
                 this.logger.error(e);
             }
         }

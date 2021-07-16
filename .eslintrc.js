@@ -10,15 +10,15 @@ module.exports = {
     parserOptions: {
         ecmaVersion: 11,
     },
-    plugins: ['@hapi/eslint-plugin-hapi'],
+    plugins: ['@hapi/eslint-plugin'],
     rules: {
 
         // Plugins
 
-        '@hapi/hapi/capitalize-modules': ['error', 'global-scope-only'],
-        '@hapi/hapi/no-var': 'error',
-        '@hapi/hapi/scope-start': 'error',
-        '@hapi/hapi/no-arrowception': 'error',
+        '@hapi/capitalize-modules': ['error', 'global-scope-only'],
+        '@hapi/no-var': 'error',
+        '@hapi/scope-start': 'error',
+        '@hapi/no-arrowception': 'error',
 
         // Possible errors
 
@@ -55,10 +55,10 @@ module.exports = {
 
         // Best practices
 
-        'curly': 'error',
+        curly: 'error',
         'dot-location': ['error', 'property'],
         'dot-notation': 'error',
-        'eqeqeq': 'error',
+        eqeqeq: 'error',
         'no-caller': 'error',
         'no-case-declarations': 'error',
         'no-constructor-return': 'error',
@@ -92,12 +92,12 @@ module.exports = {
         'no-void': 'error',
         'no-with': 'error',
         'prefer-regex-literals': 'error',
-        'radix': 'error',
+        radix: 'error',
         'require-await': 'error',
 
         // Strict mode
 
-        'strict': ['error', 'global'],
+        strict: ['error', 'global'],
 
         // Variables
 
@@ -124,7 +124,7 @@ module.exports = {
         'func-call-spacing': 'error',
         'func-style': 'error',
         'implicit-arrow-linebreak': 'error',
-        'indent': ['error', 4, { SwitchCase: 1 }],
+        indent: ['error', 4, { SwitchCase: 1 }],
         'key-spacing': 'error',
         'keyword-spacing': 'error',
         'linebreak-style': 'error',
@@ -152,8 +152,8 @@ module.exports = {
         'prefer-exponentiation-operator': 'error',
         'prefer-object-spread': 'error',
         'quote-props': ['error', 'as-needed'],
-        'quotes': ['error', 'single', { allowTemplateLiterals: true }],
-        'semi': 'error',
+        quotes: ['error', 'single', { allowTemplateLiterals: true }],
+        semi: 'error',
         'space-before-blocks': 'error',
         'space-before-function-paren': ['error', { anonymous: 'always', named: 'never' }],
         'space-in-parens': 'error',

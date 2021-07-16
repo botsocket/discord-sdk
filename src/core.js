@@ -108,7 +108,7 @@ module.exports = class {
                 catch (error) {
                     if (error instanceof internals.ValidationError) {
                         if (validate.failAction !== 'ignore') {
-                            this.execute(validate.failAction, client.realm.bind, message, error.errors, error.source);
+                            this.execute(validate.failAction, client.realm.bind, { message, errors: error.errors, source: error.source });
                         }
                     }
                     else {
@@ -120,23 +120,23 @@ module.exports = class {
                 }
             }
 
-            this.execute(handler, client.realm.bind, message, match);
+            this.execute(handler, client.realm.bind, { message, ...match });
         }
     }
 
-    async execute(handler, bind, message, ...args) {
+    async execute(handler, bind, context) {
 
         try {
-            const result = await handler.call(bind, message, ...args);
+            const result = await handler.call(bind, context);
 
             if (typeof result === 'string' ||
                 typeof result === 'number') {
 
-                return message.channel.send(result);
+                return context.message.channel.send(result);
             }
         }
         catch (error) {
-            message.channel.send('Command failed to execute!');
+            context.message.channel.send('Command failed to execute!');
             this.logger.error(error);
         }
     }
