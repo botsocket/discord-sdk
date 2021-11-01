@@ -1,6 +1,12 @@
-import { CommandInteraction, Interaction, Message } from "discord.js";
+import {
+    CommandInteraction,
+    Interaction,
+    Message,
+    Permissions,
+} from "discord.js";
 import { BotSocketClient } from "../client";
 import { PluginContext, PluginRegister } from "../plugin";
+import { snakeCaseToTitle } from "../util";
 
 export const name = "core";
 
@@ -21,14 +27,61 @@ export const register: PluginRegister = function () {
     });
     this.event({
         name: "interactionCreate",
-        handler: (interaction: Interaction) => {
+        handler: async (interaction: Interaction) => {
             if (interaction.isCommand()) {
                 const command = client.commands.get(interaction.commandName);
                 if (command) {
-                    command.handler.call(
-                        this,
-                        createCommandInteractionContext(this, interaction)
-                    );
+                    try {
+                        if (command.guildOnly && !interaction.guildId) {
+                            return interaction.reply(
+                                "This command can only be used in a guild."
+                            );
+                        }
+                        if (interaction.guildId) {
+                            if (
+                                command.userPermissions &&
+                                !interaction.memberPermissions!.has(
+                                    command.userPermissions
+                                )
+                            ) {
+                                return interaction.reply(
+                                    `You do not have the required permissions to use this command.\n` +
+                                        `Required permissions: ${new Permissions(
+                                            command.userPermissions
+                                        )
+                                            .toArray()
+                                            .map(snakeCaseToTitle)
+                                            .join(" ")}`
+                                );
+                            }
+                            if (
+                                command.clientPermissions &&
+                                !interaction.guild?.me?.permissions.has(
+                                    command.clientPermissions,
+                                    false
+                                )
+                            ) {
+                                return interaction.reply(
+                                    `I do not have the required permissions to use this command.\n` +
+                                        `Required permissions: ${new Permissions(
+                                            command.clientPermissions
+                                        )
+                                            .toArray()
+                                            .map(snakeCaseToTitle)
+                                            .join(" ")}`
+                                );
+                            }
+                        }
+                        await command.handler.call(
+                            this,
+                            createCommandInteractionContext(this, interaction)
+                        );
+                    } catch (e) {
+                        logger.error(e);
+                        await interaction
+                            .reply({ content: `\`${e}\`` })
+                            .catch(() => {});
+                    }
                 }
             }
         },
@@ -37,6 +90,8 @@ export const register: PluginRegister = function () {
     this.command({
         name: "ping",
         description: "Pong!",
+        userPermissions: "BAN_MEMBERS",
+        clientPermissions: "KICK_MEMBERS",
         handler: async ({ interaction }) => {
             const reply = (await interaction.reply({
                 content: "Ping?",

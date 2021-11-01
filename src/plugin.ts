@@ -1,6 +1,8 @@
 import {
     ApplicationCommandOptionData,
     ApplicationCommandType,
+    Permissions,
+    PermissionString,
 } from "discord.js";
 import { Logger } from "./logger";
 import { BotSocketClient, BotSocketClientEvents } from "./client";
@@ -26,6 +28,11 @@ export class PluginContext {
                 options: defintion.options ?? [],
                 type: defintion.type || "CHAT_INPUT",
                 handler: defintion.handler.bind(this),
+                guildOnly: defintion.guildOnly ?? true,
+                userPermissions: Permissions.resolve(defintion.userPermissions),
+                clientPermissions: Permissions.resolve(
+                    defintion.clientPermissions
+                ),
                 plugin: this,
             };
             this.client.commands.set(command.name, command);
@@ -59,11 +66,22 @@ export interface CommandDefinition {
     type?: ApplicationCommandType;
     options?: ApplicationCommandOptionData[];
     guildId?: string | string[];
+    guildOnly?: boolean;
+    userPermissions?: PermissionString | PermissionString[];
+    clientPermissions?: PermissionString | PermissionString[];
     handler: (this: PluginContext, context: CommandInteractionContext) => void;
 }
 
-export interface Command extends CommandDefinition {
+export interface Command {
+    name: string;
+    description: string;
     type: ApplicationCommandType;
+    options: ApplicationCommandOptionData[];
+    guildId?: string | string[];
+    guildOnly: boolean;
+    userPermissions: bigint;
+    clientPermissions: bigint;
+    handler: (this: PluginContext, context: CommandInteractionContext) => void;
     plugin: PluginContext;
 }
 
