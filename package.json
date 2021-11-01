@@ -1,11 +1,10 @@
 {
     "name": "@botsocket/discord-sdk",
-    "version": "0.0.7",
+    "version": "1.0.0",
     "description": "Interact with Discord API",
-    "main": "src/index.js",
-    "types": "src/index.d.ts",
+    "main": "dist/index.js",
     "files": [
-        "src"
+        "dist"
     ],
     "repository": {
         "type": "git",
@@ -25,15 +24,15 @@
         "@hapi/eslint-plugin-hapi": "^4.3.6",
         "eslint": "^6.8.0",
         "jest": "^25.1.0",
-        "semver": "^7.3.2",
+        "semver": "^7.3.5",
         "typescript": "^4.0.3"
     },
     "dependencies": {
         "@botsocket/jade": "^1.0.2",
         "@botsocket/ruby": "^1.0.2",
-        "discord.js": "^12.5.3"
+        "discord.js": "^13.3.0"
     },
     "engines": {
-        "node": ">=12.0.0"
+        "node": ">=16.0.0"
     }
 }
